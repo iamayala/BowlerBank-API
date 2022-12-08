@@ -6,12 +6,14 @@ var bodyParser = require("body-parser");
 const sql = require("./app/config/db");
 const cors = require("cors");
 
+// CORS Options
 var corsOptions = {
 	origin: "*",
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	allowHeaders: ["Content-Type"],
 };
 
+// Swagger Options
 const options = {
 	definition: {
 		openapi: "3.0.0",
@@ -25,13 +27,14 @@ const options = {
 		},
 		servers: [
 			{
-				url: "http://localhost:3001",
+				url: "http://localhost:4000",
 			},
 		],
 	},
 	apis: ["./app/doc/index.js"],
 };
 
+// Swagger UI
 const specs = swaggerJsdoc(options);
 app.use(
 	"/api-docs",
@@ -42,18 +45,19 @@ app.use(
 // Allow CORS
 app.use(cors(corsOptions));
 
-// body parser
+// Body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// my default port
-var HTTP_PORT = 3001;
+// My default port
+var HTTP_PORT = 4000;
 
 // Start server
 app.listen(HTTP_PORT, () => {
 	console.log("Server running on port %PORT%".replace("%PORT%", HTTP_PORT));
 });
 
+// Login to account
 app.post("/users/login", (req, res) => {
 	var params = [req.body.email, req.body.password];
 	var query = "SELECT * FROM user WHERE email = ? AND password = ?";
@@ -68,6 +72,7 @@ app.post("/users/login", (req, res) => {
 	});
 });
 
+// Fetch all users
 app.get("/users/all", (req, res) => {
 	var query = "SELECT * FROM user";
 	sql.query(query, (err, data) => {
@@ -78,6 +83,7 @@ app.get("/users/all", (req, res) => {
 	});
 });
 
+// Find a user by email
 app.get("/users/:email", (req, res) => {
 	var query =
 		"SELECT * FROM user JOIN account_type ON user.account_type = account_type.type_id WHERE user.email = ?";
@@ -89,6 +95,7 @@ app.get("/users/:email", (req, res) => {
 	});
 });
 
+// Create a user
 app.post("/users/create", (req, res) => {
 	var params = [
 		req.body.email,
@@ -109,6 +116,7 @@ app.post("/users/create", (req, res) => {
 	});
 });
 
+// Update a user
 app.post("/users/update", (req, res) => {
 	var params = [
 		req.body.password,
@@ -126,6 +134,7 @@ app.post("/users/update", (req, res) => {
 	});
 });
 
+// Delete a user
 app.post("/users/delete", (req, res) => {
 	var params = [req.body.email];
 	var query = "DELETE FROM user WHERE email = ?;";
@@ -137,7 +146,7 @@ app.post("/users/delete", (req, res) => {
 	});
 });
 
-// TRANSACTIONS
+// Create a transaction
 app.post("/transaction/create", (req, res) => {
 	const params = [
 		req.body.amount,
@@ -156,6 +165,7 @@ app.post("/transaction/create", (req, res) => {
 	});
 });
 
+// Fetch all transactions
 app.get("/transaction/all", (req, res) => {
 	var query =
 		"SELECT transaction.id, transaction.amount, transaction.date, sender.fullname AS sender_name, sender.number AS sender_number, sender.email as sender_email, receiver.fullname AS receiver_name, receiver.number AS receiver_number, receiver.email AS receiver_email, transaction_type.transaction AS transaction_type FROM transaction JOIN user sender ON transaction.sender = sender.id JOIN user receiver ON transaction.receiver = receiver.id JOIN transaction_type ON transaction.type = transaction_type.trans_id";
@@ -193,5 +203,3 @@ app.get("/account_type/all", (req, res) => {
 app.get("/", (req, res, next) => {
 	res.json({ message: "Ok" });
 });
-
-// Documenting with swagger
