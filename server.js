@@ -50,7 +50,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // My default port
-var HTTP_PORT = 4000;
+var HTTP_PORT = 3001;
 
 // Start server
 app.listen(HTTP_PORT, () => {
